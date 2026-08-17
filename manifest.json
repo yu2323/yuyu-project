@@ -1,0 +1,12 @@
+{
+  "display_name": "灵枢玉简 Lingyu Jade",
+  "loading_order": 60,
+  "js": "index.js",
+  "css": "style.css",
+  "author": "Yuyu / OpenAI prototype",
+  "version": "0.1.0",
+  "auto_update": false,
+  "hooks": {
+    "activate": "onActivate"
+  }
+}
