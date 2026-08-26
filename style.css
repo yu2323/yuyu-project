@@ -1,21 +1,513 @@
-#lingyu-top-entry{position:relative}
-#lingyu-top-entry .drawer-toggle{position:relative}
-#lingyu-top-entry .drawer-icon.lingyu-active{filter:brightness(1.35);text-shadow:0 0 8px currentColor}
-#lingyu-top-badge{position:absolute;right:0;top:1px;min-width:17px;height:17px;padding:0 4px;border-radius:10px;background:#b64d49;color:#fff;border:1px solid rgba(0,0,0,.35);font:10px/16px sans-serif;text-align:center;pointer-events:none;z-index:2}
+/* Lingyu Jade v0.2.1 — mobile readability pass */
 
-#lingyu-jade-app,#lingyu-jade-app *{box-sizing:border-box}
-#lingyu-jade-app{--lingyu-accent:var(--SmartThemeQuoteColor,#b68b42);--lingyu-text:var(--SmartThemeBodyColor,#ddd);--lingyu-muted:var(--SmartThemeEmColor,#999);--lingyu-line:var(--SmartThemeBorderColor,rgba(128,128,128,.3));width:100%;height:min(78dvh,760px);min-height:460px;color:var(--lingyu-text);background:transparent;font-family:var(--mainFontFamily,"Noto Sans",sans-serif);text-align:left}
-.lingyu-app-shell{height:100%;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden;background:transparent}
-.lingyu-app-head{min-height:58px;padding:8px 6px 10px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--lingyu-line)}
-.lingyu-brand{display:flex;align-items:center;gap:10px;min-width:0}.lingyu-seal{width:35px;height:35px;flex:0 0 35px;display:grid;place-items:center;border:1px solid var(--lingyu-line);border-radius:9px;color:var(--lingyu-accent);font-family:serif;font-size:17px}.lingyu-brand strong{display:block;font-family:serif;font-size:16px;font-weight:600;letter-spacing:.08em}.lingyu-brand small{display:block;margin-top:2px;color:var(--lingyu-muted);font-size:10px}.lingyu-head-actions{display:flex;align-items:center;gap:3px}.lingyu-head-actions button,.lingyu-back{width:36px;height:36px;border:0;border-radius:50%;background:transparent;color:var(--lingyu-text);font-size:22px;cursor:pointer}.lingyu-head-actions button:hover,.lingyu-back:hover{background:rgba(127,127,127,.12)}
-.lingyu-app-body{min-height:0;overflow:auto;padding:14px 6px 20px;scrollbar-width:thin}
-.lingyu-hero{padding:18px;border:1px solid var(--lingyu-line);border-radius:16px;background:rgba(127,127,127,.07)}.lingyu-hero-line{display:flex;justify-content:space-between;color:var(--lingyu-accent);font-size:10px}.lingyu-hero h2{margin:8px 0 17px;font-family:serif;font-size:21px;font-weight:500}.lingyu-stone{display:flex;align-items:baseline;gap:8px;color:var(--lingyu-muted);font-size:11px}.lingyu-stone strong{font-size:21px;color:var(--lingyu-text);font-weight:500}
-.lingyu-section{margin-top:17px}.lingyu-section.no-top{margin-top:0}.lingyu-section-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.lingyu-section-title>span{font-size:13px;font-weight:600}.lingyu-section-title small{color:var(--lingyu-muted);font-size:9px}.lingyu-notice-list,.lingyu-thread-list,.lingyu-market-list,.lingyu-person-list{border:1px solid var(--lingyu-line);border-radius:14px;overflow:hidden}.lingyu-notice{display:flex;gap:10px;padding:11px 12px;border-bottom:1px solid var(--lingyu-line);font-size:11px;line-height:1.55}.lingyu-notice:last-child{border-bottom:0}.lingyu-notice>span{color:var(--lingyu-accent);font-size:9px}.lingyu-notice p{margin:0}.lingyu-empty{padding:18px;border:1px dashed var(--lingyu-line);border-radius:14px;color:var(--lingyu-muted);font-size:11px;text-align:center}
-.lingyu-thread{width:100%;display:flex;align-items:center;gap:11px;padding:12px;border:0;border-bottom:1px solid var(--lingyu-line);background:rgba(127,127,127,.035);color:var(--lingyu-text);text-align:left;cursor:pointer}.lingyu-thread:last-child{border-bottom:0}.lingyu-thread.compact{border:1px solid var(--lingyu-line);border-radius:13px;margin-bottom:8px}.lingyu-avatar{width:38px;height:38px;flex:0 0 38px;border:1px solid var(--lingyu-line);border-radius:12px;display:grid;place-items:center;color:var(--lingyu-accent);font-family:serif;background:rgba(127,127,127,.07)}.lingyu-avatar.large{width:42px;height:42px;flex-basis:42px}.lingyu-thread-main{min-width:0;flex:1}.lingyu-thread-row{display:flex;align-items:center;gap:8px}.lingyu-thread-row strong{font-size:12px;font-weight:500}.lingyu-thread-main p{margin:4px 0 0;color:var(--lingyu-muted);font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lingyu-count{margin-left:auto;min-width:18px;height:18px;padding:0 5px;border-radius:10px;background:#b64d49;color:#fff;line-height:18px;text-align:center;font-size:9px}
-.lingyu-chat-head{display:flex;align-items:center;gap:8px;padding-bottom:11px;border-bottom:1px solid var(--lingyu-line)}.lingyu-chat-head strong{display:block;font-size:13px}.lingyu-chat-head small{display:block;margin-top:3px;color:var(--lingyu-muted);font-size:9px}.lingyu-chat-log{min-height:260px;overflow:auto;padding:17px 2px}.lingyu-bubble-row{display:flex;flex-direction:column;align-items:flex-start;margin-bottom:10px}.lingyu-bubble-row.mine{align-items:flex-end}.lingyu-bubble{max-width:80%;padding:10px 11px;border:1px solid var(--lingyu-line);background:rgba(127,127,127,.07);border-radius:5px 14px 14px 14px;font-size:11px;line-height:1.55}.lingyu-bubble-row.mine .lingyu-bubble{background:rgba(90,130,110,.14);border-radius:14px 5px 14px 14px}.lingyu-bubble-row small{margin-top:4px;color:var(--lingyu-muted);font-size:8px}.lingyu-compose,.lingyu-feed-compose{display:flex;gap:8px}.lingyu-compose input,.lingyu-feed-compose textarea{min-width:0;flex:1;border:1px solid var(--lingyu-line);background:rgba(127,127,127,.05);color:var(--lingyu-text);border-radius:12px;padding:10px 11px;outline:none}.lingyu-compose button,.lingyu-feed-compose button{border:1px solid var(--lingyu-line);background:rgba(127,127,127,.08);color:var(--lingyu-accent);border-radius:12px;padding:0 14px;cursor:pointer}
-.lingyu-feed-compose{margin-bottom:11px}.lingyu-feed-compose textarea{resize:none}.lingyu-post{padding:15px 2px;border-bottom:1px solid var(--lingyu-line)}.lingyu-post-head{display:flex;gap:10px;align-items:center}.lingyu-post-head strong{display:block;font-size:12px}.lingyu-post-head small{display:block;color:var(--lingyu-muted);font-size:9px;margin-top:3px}.lingyu-post-text{font-size:11px;line-height:1.72;margin:11px 0;white-space:pre-wrap}.lingyu-image-placeholder{min-height:100px;padding:14px;border-radius:12px;border:1px solid var(--lingyu-line);background:rgba(127,127,127,.05);display:flex;flex-direction:column;justify-content:flex-end}.lingyu-image-placeholder span{font-family:serif;color:var(--lingyu-accent);font-size:10px;letter-spacing:.2em}.lingyu-image-placeholder p{margin:5px 0 0;color:var(--lingyu-muted);font-size:10px;line-height:1.5}.lingyu-post-actions{display:flex;gap:16px;align-items:center;margin-top:10px;color:var(--lingyu-muted);font-size:9px}.lingyu-post-actions button{border:0;background:transparent;color:var(--lingyu-muted);padding:0;font-size:10px;cursor:pointer}.lingyu-post-actions button.liked{color:#c56e68}.lingyu-social-box{margin-top:9px;padding:8px 9px;border-radius:8px;background:rgba(127,127,127,.05);font-size:9px;line-height:1.6}.lingyu-likes{padding-bottom:4px}.lingyu-comment strong{color:var(--lingyu-accent);font-weight:500}
-.lingyu-market-item{display:flex;justify-content:space-between;gap:10px;padding:13px 12px;border-bottom:1px solid var(--lingyu-line)}.lingyu-market-item:last-child{border-bottom:0}.lingyu-market-item strong{display:block;font-size:11px;font-weight:500}.lingyu-market-item small{display:block;color:var(--lingyu-muted);font-size:9px;margin-top:4px}.lingyu-price{text-align:right}.lingyu-price>strong{font-size:10px}.lingyu-price span{display:block;color:var(--lingyu-accent);font-size:9px;margin-top:4px}.lingyu-price span.down{opacity:.75}.lingyu-person{display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--lingyu-line)}.lingyu-person:last-child{border-bottom:0}.lingyu-person-main{min-width:0;flex:1}.lingyu-person-main>div{display:flex;align-items:center;gap:7px}.lingyu-person-main strong{font-size:11px;font-weight:500}.lingyu-person-main span{color:var(--lingyu-accent);font-size:8px}.lingyu-person-main small{display:block;color:var(--lingyu-muted);font-size:9px;margin-top:4px}.lingyu-person-main p{margin:4px 0 0;font-size:9px;line-height:1.5}
-.lingyu-tabs{display:grid;grid-template-columns:repeat(5,1fr);min-height:57px;padding:5px;border-top:1px solid var(--lingyu-line);background:transparent}.lingyu-tab{border:0;background:transparent;color:var(--lingyu-muted);display:flex;flex-direction:column;justify-content:center;align-items:center;gap:2px;cursor:pointer;border-radius:10px}.lingyu-tab span{font-size:17px;font-family:serif}.lingyu-tab small{font-size:9px}.lingyu-tab.active{color:var(--lingyu-accent);background:rgba(127,127,127,.06)}
+#lingyu-top-entry { position: relative; }
+#lingyu-top-entry .drawer-toggle { position: relative; }
+#lingyu-top-entry .drawer-icon.lingyu-active {
+    filter: brightness(.78) saturate(1.2);
+    text-shadow: 0 0 7px rgba(73, 104, 86, .28);
+}
+#lingyu-top-badge {
+    position: absolute;
+    right: -1px;
+    top: 0;
+    min-width: 17px;
+    height: 17px;
+    padding: 0 4px;
+    border-radius: 10px;
+    background: #b74f4b;
+    color: #fff;
+    border: 1px solid rgba(0, 0, 0, .25);
+    font: 600 10px/16px sans-serif;
+    text-align: center;
+    pointer-events: none;
+    z-index: 2;
+}
 
-@media(max-width:520px){#lingyu-jade-app{height:calc(100dvh - 92px);min-height:0}.lingyu-app-head{padding-top:4px}.lingyu-app-body{padding:10px 2px 14px}.lingyu-brand small{max-width:210px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lingyu-head-actions button{width:34px;height:34px}}
-@media(prefers-reduced-motion:reduce){#lingyu-jade-app *{scroll-behavior:auto!important;transition:none!important}}
+/* Use the native Popup lifecycle, but make this popup visually quiet. */
+.popup:has(#lingyu-jade-app),
+.popup:has(#lingyu-jade-app) .popup-body,
+.popup:has(#lingyu-jade-app) .popup-content {
+    background-color: #f3efe5 !important;
+    background-image: none !important;
+    color: #3e3932 !important;
+}
+.popup:has(#lingyu-jade-app) .popup-body,
+.popup:has(#lingyu-jade-app) .popup-content {
+    padding: 0 !important;
+}
+.popup:has(#lingyu-jade-app) .popup-button-close {
+    display: none !important;
+}
+
+#lingyu-jade-app,
+#lingyu-jade-app * { box-sizing: border-box; }
+
+#lingyu-jade-app {
+    --lingyu-ink: #3e3932;
+    --lingyu-ink-2: #5d564c;
+    --lingyu-muted: #81796e;
+    --lingyu-line: rgba(75, 67, 56, .16);
+    --lingyu-line-strong: rgba(75, 67, 56, .24);
+    --lingyu-jade: #486858;
+    --lingyu-jade-soft: rgba(72, 104, 88, .10);
+    --lingyu-gold: #8c6d35;
+    --lingyu-red: #b74f4b;
+    --lingyu-card: rgba(255, 255, 255, .38);
+    width: 100%;
+    height: min(82dvh, 780px);
+    min-height: 470px;
+    color: var(--lingyu-ink);
+    background: transparent;
+    font-family: var(--mainFontFamily, "Noto Sans", sans-serif);
+    text-align: left;
+}
+
+.lingyu-app-shell {
+    height: 100%;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    overflow: hidden;
+    background: transparent;
+}
+
+/* Header */
+.lingyu-app-head {
+    min-height: 66px;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--lingyu-line);
+    background: rgba(255, 255, 255, .20);
+}
+.lingyu-brand { min-width: 0; }
+.lingyu-brand strong {
+    display: block;
+    color: var(--lingyu-ink);
+    font-family: serif;
+    font-size: 20px;
+    font-weight: 650;
+    letter-spacing: .06em;
+    line-height: 1.2;
+}
+.lingyu-brand small {
+    display: block;
+    margin-top: 4px;
+    color: var(--lingyu-muted);
+    font-size: 11px;
+    letter-spacing: .02em;
+}
+.lingyu-head-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+.lingyu-head-actions button,
+.lingyu-back {
+    width: 38px;
+    height: 38px;
+    border: 0;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--lingyu-ink-2);
+    font-size: 17px;
+    cursor: pointer;
+}
+.lingyu-head-actions button:active,
+.lingyu-back:active {
+    background: rgba(72, 104, 88, .10);
+    color: var(--lingyu-jade);
+}
+
+/* Scroll area */
+.lingyu-app-body {
+    min-height: 0;
+    overflow: auto;
+    padding: 18px 18px 26px;
+    scrollbar-width: thin;
+}
+
+/* Home status */
+.lingyu-status-card {
+    padding: 18px 18px 16px;
+    border: 1px solid var(--lingyu-line);
+    border-radius: 16px;
+    background: var(--lingyu-card);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, .35) inset;
+}
+.lingyu-status-kicker {
+    color: var(--lingyu-jade);
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .08em;
+}
+.lingyu-status-card h2 {
+    margin: 7px 0 16px;
+    color: var(--lingyu-ink);
+    font-family: serif;
+    font-size: 25px;
+    line-height: 1.25;
+    font-weight: 600;
+}
+.lingyu-status-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid var(--lingyu-line);
+}
+.lingyu-status-meta > div {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.lingyu-status-meta span {
+    color: var(--lingyu-muted);
+    font-size: 10px;
+}
+.lingyu-status-meta strong {
+    color: var(--lingyu-ink);
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Sections */
+.lingyu-section { margin-top: 22px; }
+.lingyu-section.no-top { margin-top: 0; }
+.lingyu-section-title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 0 2px;
+}
+.lingyu-section-title > span {
+    color: var(--lingyu-ink);
+    font-size: 15px;
+    font-weight: 700;
+}
+.lingyu-section-title small {
+    color: var(--lingyu-muted);
+    font-size: 10px;
+}
+
+.lingyu-notice-list,
+.lingyu-thread-list,
+.lingyu-market-list,
+.lingyu-person-list {
+    border: 1px solid var(--lingyu-line);
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, .22);
+}
+.lingyu-notice {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 8px;
+    align-items: start;
+    padding: 14px 14px;
+    border-bottom: 1px solid var(--lingyu-line);
+    color: var(--lingyu-ink);
+    font-size: 13.5px;
+    line-height: 1.62;
+}
+.lingyu-notice:last-child { border-bottom: 0; }
+.lingyu-notice > span {
+    color: var(--lingyu-gold);
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.9;
+}
+.lingyu-notice p { margin: 0; }
+.lingyu-empty {
+    padding: 20px;
+    border: 1px dashed var(--lingyu-line-strong);
+    border-radius: 14px;
+    color: var(--lingyu-muted);
+    background: rgba(255, 255, 255, .18);
+    font-size: 12px;
+    text-align: center;
+}
+
+/* Messages */
+.lingyu-thread {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 0;
+    border-bottom: 1px solid var(--lingyu-line);
+    background: transparent;
+    color: var(--lingyu-ink);
+    text-align: left;
+    cursor: pointer;
+}
+.lingyu-thread:last-child { border-bottom: 0; }
+.lingyu-thread.compact {
+    border: 1px solid var(--lingyu-line);
+    border-radius: 14px;
+    margin-bottom: 9px;
+    background: rgba(255, 255, 255, .28);
+}
+.lingyu-thread:active { background: var(--lingyu-jade-soft); }
+.lingyu-avatar {
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border: 1px solid rgba(72, 104, 88, .22);
+    border-radius: 13px;
+    display: grid;
+    place-items: center;
+    color: var(--lingyu-jade);
+    font-family: serif;
+    font-size: 16px;
+    background: rgba(72, 104, 88, .08);
+}
+.lingyu-avatar.large {
+    width: 46px;
+    height: 46px;
+    flex-basis: 46px;
+}
+.lingyu-thread-main { min-width: 0; flex: 1; }
+.lingyu-thread-row { display: flex; align-items: center; gap: 8px; }
+.lingyu-thread-row strong {
+    color: var(--lingyu-ink);
+    font-size: 14px;
+    font-weight: 680;
+}
+.lingyu-thread-main p {
+    margin: 5px 0 0;
+    color: var(--lingyu-muted);
+    font-size: 12px;
+    line-height: 1.45;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.lingyu-count {
+    margin-left: auto;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 12px;
+    background: var(--lingyu-red);
+    color: #fff;
+    line-height: 20px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.lingyu-chat-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--lingyu-line);
+}
+.lingyu-chat-head strong { display: block; color: var(--lingyu-ink); font-size: 15px; }
+.lingyu-chat-head small { display: block; margin-top: 3px; color: var(--lingyu-muted); font-size: 10px; }
+.lingyu-chat-log {
+    min-height: 260px;
+    overflow: auto;
+    padding: 18px 2px;
+}
+.lingyu-bubble-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 12px;
+}
+.lingyu-bubble-row.mine { align-items: flex-end; }
+.lingyu-bubble {
+    max-width: 82%;
+    padding: 11px 13px;
+    border: 1px solid var(--lingyu-line);
+    background: rgba(255, 255, 255, .36);
+    border-radius: 6px 15px 15px 15px;
+    color: var(--lingyu-ink);
+    font-size: 13px;
+    line-height: 1.55;
+}
+.lingyu-bubble-row.mine .lingyu-bubble {
+    background: rgba(72, 104, 88, .12);
+    border-radius: 15px 6px 15px 15px;
+}
+.lingyu-bubble-row small { margin-top: 4px; color: var(--lingyu-muted); font-size: 9px; }
+
+.lingyu-compose,
+.lingyu-feed-compose { display: flex; gap: 8px; }
+.lingyu-compose input,
+.lingyu-feed-compose textarea {
+    min-width: 0;
+    flex: 1;
+    border: 1px solid var(--lingyu-line-strong);
+    background: rgba(255, 255, 255, .42);
+    color: var(--lingyu-ink);
+    border-radius: 12px;
+    padding: 11px 12px;
+    outline: none;
+    font-size: 13px;
+}
+.lingyu-compose input::placeholder,
+.lingyu-feed-compose textarea::placeholder { color: #9a9185; }
+.lingyu-compose button,
+.lingyu-feed-compose button {
+    border: 1px solid rgba(72, 104, 88, .24);
+    background: rgba(72, 104, 88, .10);
+    color: var(--lingyu-jade);
+    border-radius: 12px;
+    padding: 0 15px;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+/* Feed */
+.lingyu-feed-compose { margin-bottom: 12px; }
+.lingyu-feed-compose textarea { resize: none; }
+.lingyu-post {
+    padding: 17px 2px;
+    border-bottom: 1px solid var(--lingyu-line);
+}
+.lingyu-post-head { display: flex; gap: 11px; align-items: center; }
+.lingyu-post-head strong { display: block; color: var(--lingyu-ink); font-size: 14px; }
+.lingyu-post-head small { display: block; color: var(--lingyu-muted); font-size: 10px; margin-top: 3px; }
+.lingyu-post-text {
+    color: var(--lingyu-ink);
+    font-size: 13px;
+    line-height: 1.72;
+    margin: 12px 0;
+    white-space: pre-wrap;
+}
+.lingyu-image-placeholder {
+    min-height: 104px;
+    padding: 14px;
+    border-radius: 12px;
+    border: 1px solid var(--lingyu-line);
+    background: rgba(255, 255, 255, .30);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+.lingyu-image-placeholder span {
+    color: var(--lingyu-jade);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .15em;
+}
+.lingyu-image-placeholder p {
+    margin: 6px 0 0;
+    color: var(--lingyu-ink-2);
+    font-size: 11px;
+    line-height: 1.55;
+}
+.lingyu-post-actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 11px;
+    color: var(--lingyu-muted);
+    font-size: 10px;
+}
+.lingyu-post-actions button {
+    border: 0;
+    background: transparent;
+    color: var(--lingyu-muted);
+    padding: 0;
+    font-size: 11px;
+    cursor: pointer;
+}
+.lingyu-post-actions button.liked { color: var(--lingyu-red); }
+.lingyu-social-box {
+    margin-top: 9px;
+    padding: 9px 10px;
+    border-radius: 9px;
+    background: rgba(72, 104, 88, .07);
+    color: var(--lingyu-ink-2);
+    font-size: 11px;
+    line-height: 1.65;
+}
+.lingyu-likes { padding-bottom: 4px; }
+.lingyu-comment strong { color: var(--lingyu-jade); font-weight: 650; }
+
+/* Market / People */
+.lingyu-market-item {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 15px 14px;
+    border-bottom: 1px solid var(--lingyu-line);
+}
+.lingyu-market-item:last-child { border-bottom: 0; }
+.lingyu-market-item strong { display: block; color: var(--lingyu-ink); font-size: 13px; font-weight: 650; }
+.lingyu-market-item small { display: block; color: var(--lingyu-muted); font-size: 10px; margin-top: 5px; }
+.lingyu-price { text-align: right; }
+.lingyu-price > strong { font-size: 12px; }
+.lingyu-price span { display: block; color: var(--lingyu-gold); font-size: 10px; margin-top: 5px; }
+.lingyu-person {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 14px;
+    border-bottom: 1px solid var(--lingyu-line);
+}
+.lingyu-person:last-child { border-bottom: 0; }
+.lingyu-person-main { min-width: 0; flex: 1; }
+.lingyu-person-main > div { display: flex; align-items: center; gap: 8px; }
+.lingyu-person-main strong { color: var(--lingyu-ink); font-size: 13px; font-weight: 680; }
+.lingyu-person-main span { color: var(--lingyu-jade); font-size: 10px; }
+.lingyu-person-main small { display: block; color: var(--lingyu-muted); font-size: 10px; margin-top: 4px; }
+.lingyu-person-main p { margin: 5px 0 0; color: var(--lingyu-ink-2); font-size: 11px; line-height: 1.5; }
+
+/* Bottom nav */
+.lingyu-tabs {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    min-height: 66px;
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--lingyu-line);
+    background: rgba(255, 255, 255, .30);
+}
+.lingyu-tab {
+    border: 0;
+    background: transparent;
+    color: var(--lingyu-muted);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    border-radius: 12px;
+    min-height: 50px;
+}
+.lingyu-tab i { font-size: 17px; }
+.lingyu-tab small { font-size: 10px; font-weight: 600; }
+.lingyu-tab.active {
+    color: var(--lingyu-jade);
+    background: rgba(72, 104, 88, .09);
+}
+
+@media (max-width: 520px) {
+    #lingyu-jade-app { height: calc(100dvh - 76px); min-height: 0; }
+    .lingyu-app-head { padding: 11px 14px; }
+    .lingyu-brand strong { font-size: 19px; }
+    .lingyu-brand small { max-width: 210px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .lingyu-app-body { padding: 16px 14px 22px; }
+    .lingyu-status-card { padding: 16px 15px 15px; }
+    .lingyu-status-card h2 { font-size: 23px; }
+    .lingyu-status-meta { gap: 8px; }
+    .lingyu-status-meta strong { font-size: 12px; }
+    .lingyu-head-actions button { width: 36px; height: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #lingyu-jade-app * { scroll-behavior: auto !important; transition: none !important; }
+}
