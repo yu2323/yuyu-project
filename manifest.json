@@ -2,8 +2,8 @@
   "display_name": "灵枢玉简 Lingyu Jade",
   "loading_order": 60,
   "js": "index.js",
-  "css": "style.css",
+  "css": "style-v0.2.2.css",
   "author": "Yuyu / OpenAI prototype",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "auto_update": false
 }
