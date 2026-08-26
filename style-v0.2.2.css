@@ -1,0 +1,60 @@
+@import url('./style.css');
+
+/* Lingyu Jade v0.2.2 — mobile bottom-nav containment fix */
+
+/*
+ * SillyTavern's native large Popup is already 90dvh tall.
+ * Do not size the app against the browser viewport again: that made the
+ * internal shell taller than .popup-content and clipped the bottom nav.
+ */
+.popup:has(#lingyu-jade-app) .popup-content {
+    margin-top: 0 !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+.popup:has(#lingyu-jade-app) .popup-body {
+    min-height: 0 !important;
+}
+
+#lingyu-jade-app {
+    height: 100% !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 1 1 auto !important;
+    overflow: hidden !important;
+}
+
+.lingyu-app-shell {
+    height: 100% !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+}
+
+.lingyu-app-body {
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.lingyu-tabs {
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 3;
+}
+
+@media (max-width: 520px) {
+    #lingyu-jade-app {
+        height: 100% !important;
+        min-height: 0 !important;
+    }
+
+    .lingyu-tabs {
+        min-height: 64px;
+        padding-bottom: max(7px, env(safe-area-inset-bottom));
+    }
+}
