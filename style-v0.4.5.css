@@ -1,0 +1,7 @@
+@import url('./style-v0.4.2.css');
+
+/* v0.4.5 hotfix: retire the old prototype refresh button.
+   Real story updates are handled by the bridge sync (link) control. */
+#lingyu-jade-app [data-act="refresh"] {
+    display: none !important;
+}
