@@ -4,6 +4,6 @@
   "js": "bridge-v0.4.2.js",
   "css": "style-v0.4.2.css",
   "author": "Yuyu / OpenAI prototype",
-  "version": "0.4.2",
+  "version": "0.4.4",
   "auto_update": false
 }
