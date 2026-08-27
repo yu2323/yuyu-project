@@ -1,0 +1,96 @@
+@import url('./style-v0.2.2.css');
+
+/* Lingyu Jade v0.4.1 — narrow mobile horizontal containment fix */
+
+/* Header: v0.4 adds brain / auto / sync controls. Keep all five actions inside the popup. */
+.lingyu-app-head {
+    min-width: 0;
+    gap: 8px;
+}
+
+.lingyu-brand {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.lingyu-head-actions {
+    flex: 0 0 auto;
+    min-width: 0;
+    gap: 2px;
+}
+
+.lingyu-head-actions button {
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    flex: 0 0 34px;
+    width: 34px !important;
+    max-width: 34px;
+}
+
+/* Bottom nav: prevent host theme button min-width / padding from widening grid tracks. */
+.lingyu-tabs {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    overflow: hidden;
+}
+
+.lingyu-tab {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100%;
+    margin: 0 !important;
+    padding: 0 2px !important;
+    overflow: hidden;
+}
+
+.lingyu-tab i,
+.lingyu-tab small {
+    max-width: 100%;
+}
+
+.lingyu-tab small {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+}
+
+@media (max-width: 520px) {
+    .lingyu-app-head {
+        padding-left: 12px;
+        padding-right: 10px;
+        gap: 4px;
+    }
+
+    .lingyu-brand strong {
+        font-size: 18px;
+    }
+
+    .lingyu-brand small {
+        max-width: 150px;
+    }
+
+    .lingyu-head-actions {
+        gap: 0;
+    }
+
+    .lingyu-head-actions button {
+        flex-basis: 32px;
+        width: 32px !important;
+        max-width: 32px;
+        height: 36px !important;
+        border-radius: 10px;
+    }
+
+    .lingyu-tabs {
+        padding-left: 4px;
+        padding-right: 4px;
+    }
+
+    .lingyu-tab {
+        padding-left: 1px !important;
+        padding-right: 1px !important;
+    }
+}
