@@ -1,0 +1,73 @@
+@import url('./style-v0.4.1.css');
+
+/* Lingyu Jade v0.4.2 — guaranteed close paths + modal toolbar toggle proxy */
+
+/* The native DISPLAY close control is the reliable emergency exit. */
+.popup:has(#lingyu-jade-app) .popup-button-close {
+    display: grid !important;
+    place-items: center !important;
+    position: absolute !important;
+    top: 12px !important;
+    right: 12px !important;
+    width: 38px !important;
+    min-width: 38px !important;
+    height: 38px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 11px !important;
+    background: rgba(255, 255, 255, .34) !important;
+    color: var(--lingyu-ink-2, #5d564c) !important;
+    font-size: 20px !important;
+    line-height: 1 !important;
+    z-index: 20 !important;
+    cursor: pointer !important;
+}
+
+.popup:has(#lingyu-jade-app) .popup-button-close:active {
+    background: rgba(72, 104, 88, .12) !important;
+    color: var(--lingyu-jade, #486858) !important;
+}
+
+/* Reserve space for the native X and remove the duplicate internal X from flex layout. */
+#lingyu-jade-app .lingyu-app-head {
+    position: relative;
+    padding-right: 54px !important;
+}
+
+#lingyu-jade-app .lingyu-head-actions [data-act="close"] {
+    display: none !important;
+}
+
+/* Four remaining header actions must never push the close control off-screen. */
+#lingyu-jade-app .lingyu-head-actions {
+    max-width: 144px;
+    overflow: hidden;
+}
+
+/* Invisible top-layer hit target: the visible toolbar scroll icon behind the modal
+ * can now be tapped again to close the panel. */
+#lingyu-top-toggle-proxy {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 380px) {
+    #lingyu-jade-app .lingyu-brand small {
+        display: none;
+    }
+
+    #lingyu-jade-app .lingyu-head-actions {
+        max-width: 128px;
+    }
+
+    .popup:has(#lingyu-jade-app) .popup-button-close {
+        top: 10px !important;
+        right: 9px !important;
+        width: 36px !important;
+        min-width: 36px !important;
+        height: 36px !important;
+    }
+}
