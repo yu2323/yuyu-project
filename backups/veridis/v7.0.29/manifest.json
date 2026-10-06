@@ -1,0 +1,9 @@
+{
+  "display_name": "屏蔽词净化助手 AI 改写版 · 手机稳定增强",
+  "loading_order": 10,
+  "js": "index.js",
+  "css": "style.css",
+  "author": "Assistant",
+  "version": "7.0.29-mobile-stable",
+  "description": "Veridis Rewrite 手机稳定增强版：继承 v7.0.28；v7.0.29 在 AI 回填后的最终文本守卫中新增旁白相邻段 A。/A+B 精确前缀复读兜底，不改对白，不做模糊去重。"
+}
