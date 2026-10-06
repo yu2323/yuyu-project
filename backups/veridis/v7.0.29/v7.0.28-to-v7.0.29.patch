@@ -1,0 +1,94 @@
+diff -ruN /mnt/data/veridis_orig_cmp/README.md /mnt/data/veridis_7028/README.md
+--- /mnt/data/veridis_orig_cmp/README.md	2026-10-06 04:33:15.391583347 +0000
++++ /mnt/data/veridis_7028/README.md	2026-10-06 04:33:15.391583347 +0000
+@@ -421,3 +421,13 @@
+ - 新增纯函数回归脚本，固定覆盖本轮重复事故、是是非非、对白结巴、皮肉伤、食物软肉等反例。
+ 
+ 版本：`7.0.28-mobile-stable`
++
++
++## v7.0.29｜AI 回填后的相邻前缀复读兜底
++
++- 修复形态：`A。\n\nA。B...` 与 `A。\n\nA，B...`。
++- 修复位置：最终文本守卫，确保 AI 局部改写回填完成后再做一次确定性兜底。
++- 边界：仅旁白区、仅相邻段落、仅 12~120 字完全一致前缀；对白逐字保留，不做模糊相似度去重。
++- 回归样例覆盖“体温/心率”与“她只需要……”两种本次实测问题。
++
++版本：`7.0.29-mobile-stable`
+diff -ruN /mnt/data/veridis_orig_cmp/manifest.json /mnt/data/veridis_7028/manifest.json
+--- /mnt/data/veridis_orig_cmp/manifest.json	2026-09-12 01:20:46.000000000 +0000
++++ /mnt/data/veridis_7028/manifest.json	2026-10-06 04:28:25.844396472 +0000
+@@ -4,6 +4,6 @@
+   "js": "index.js",
+   "css": "style.css",
+   "author": "Assistant",
+-  "version": "7.0.28-mobile-stable",
+-  "description": "Veridis Rewrite 手机稳定增强版：保留 v7.0.22/23 省 Token 引擎；v7.0.28 修复短 item 上下文重复回填、叙述区近邻复读与体表“皮肉/软肉”残留，并将“取而代之的是”改为整句安全改写。"
++  "version": "7.0.29-mobile-stable",
++  "description": "Veridis Rewrite 手机稳定增强版：继承 v7.0.28；v7.0.29 在 AI 回填后的最终文本守卫中新增旁白相邻段 A。/A+B 精确前缀复读兜底，不改对白，不做模糊去重。"
+ }
+diff -ruN /mnt/data/veridis_orig_cmp/src/stableTextGuards.js /mnt/data/veridis_7028/src/stableTextGuards.js
+--- /mnt/data/veridis_orig_cmp/src/stableTextGuards.js	2026-09-12 01:19:22.000000000 +0000
++++ /mnt/data/veridis_7028/src/stableTextGuards.js	2026-10-06 04:28:25.844221949 +0000
+@@ -39,6 +39,39 @@
+     });
+ }
+ 
++/**
++ * v7.0.29: collapse an accidental narration prefix replay across adjacent paragraphs.
++ * Typical AI write-back artifact:
++ *   A。
++ *   A。B...
++ * or
++ *   A。
++ *   A，B...
++ * Keep the longer second sentence by removing only the standalone first copy.
++ *
++ * Safety boundaries:
++ * - narration only (quoted dialogue is preserved byte-for-byte)
++ * - adjacent paragraphs only
++ * - exact prefix only, 12~120 chars
++ * - no fuzzy/similarity matching
++ */
++export function cleanupNarrativePrefixDuplication(sourceText) {
++    return transformOutsideDialogue(sourceText, (span) => {
++        let output = String(span || '');
++        if (!output) return output;
++
++        const repeatedParagraphPrefix = /(^|\r?\n)([ \t]*)([^。！？!?\r\n]{12,120}?)([。！？!?])([ \t]*(?:\r?\n)[ \t]*(?:\r?\n[ \t]*)?)\3(?=[，,。！？!?；;：:])/gmu;
++
++        // A collapse can expose one more adjacent duplicate; cap the passes to stay conservative.
++        for (let pass = 0; pass < 3; pass += 1) {
++            const next = output.replace(repeatedParagraphPrefix, '$1$2$3');
++            if (next === output) break;
++            output = next;
++        }
++        return output;
++    });
++}
++
+ const externalBodySoftMeatPattern = /(大腿(?:内侧|外侧)?|腿侧|腿根|腰侧|臀部|胸部|小腹|下腹|肩头|手臂)(?:上|处|的)?(?:那片|这片|一片|那块|这块)?(?:柔软的肉|软肉|嫩肉)/gu;
+ const bodyTouchAnchorPattern = /(?:娇嫩|薄嫩|细嫩|柔嫩|冷白|白皙|光滑|细腻|手掌|掌心|指腹|指尖|按|压|碾|揉|捏|抓|抚|推挤|变形|凹陷|压痕|泛红|充血|大腿|腿侧|臀|腰|胸|肩|腹|胯|阴唇|阴蒂|阴部)/u;
+ const injuryAnchorPattern = /(?:皮肉伤|皮肉之苦|刀|剑|刃|割|划|砍|撕裂|裂开|伤口|创口|烧伤|烫伤|流血|鲜血|血肉|剥开)/u;
+@@ -77,6 +110,7 @@
+ 
+ export function applyStableFinalTextGuards(sourceText) {
+     let output = cleanupNarrativeNearDuplication(sourceText);
++    output = cleanupNarrativePrefixDuplication(output);
+     output = cleanupHumanMeatObjectificationResidue(output);
+     return output;
+ }
+diff -ruN /mnt/data/veridis_orig_cmp/tests/regression-v7.0.28.mjs /mnt/data/veridis_7028/tests/regression-v7.0.28.mjs
+--- /mnt/data/veridis_orig_cmp/tests/regression-v7.0.28.mjs	2026-09-12 01:20:46.000000000 +0000
++++ /mnt/data/veridis_7028/tests/regression-v7.0.28.mjs	2026-10-06 04:28:25.844455440 +0000
+@@ -9,6 +9,10 @@
+     ['soft meat', '他掌心压住你大腿内侧的软肉。', '他掌心压住你大腿内侧。'],
+     ['injury', '刀锋割开皮肉，鲜血立刻涌出。', '刀锋割开皮肉，鲜血立刻涌出。'],
+     ['food', '锅里的软肉已经炖烂了。', '锅里的软肉已经炖烂了。'],
++    ['prefix replay exact sentence', '体温三十六度二，心率每分钟六十七次。\n\n体温三十六度二，心率每分钟六十七次。你握着调色刀。', '体温三十六度二，心率每分钟六十七次。你握着调色刀。'],
++    ['prefix replay extended comma', '她只需要在他的掌心里呼吸、作画、生存。\n\n她只需要在他的掌心里呼吸、作画、生存，由他来提供一切。', '她只需要在他的掌心里呼吸、作画、生存，由他来提供一切。'],
++    ['dialogue prefix repetition preserved', '“你必须记住我的名字，永远不能忘。\n\n你必须记住我的名字，永远不能忘，听见了吗？”', '“你必须记住我的名字，永远不能忘。\n\n你必须记住我的名字，永远不能忘，听见了吗？”'],
++    ['short narration repetition preserved', '一切如常。\n\n一切如常。窗外下着雨。', '一切如常。\n\n一切如常。窗外下着雨。'],
+ ];
+ for (const [name, input, expected] of cases) {
+     const actual = applyStableFinalTextGuards(input);
