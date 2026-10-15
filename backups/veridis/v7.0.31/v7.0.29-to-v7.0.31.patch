@@ -1,0 +1,264 @@
+diff -ruN '--exclude=v7.0.30-to-v7.0.31.patch' '--exclude=v7.0.29-to-v7.0.31.patch' /mnt/data/veridis_7029_cmp/README.md /mnt/data/veridis_7031/README.md
+--- /mnt/data/veridis_7029_cmp/README.md	2026-10-06 04:28:42.000000000 +0000
++++ /mnt/data/veridis_7031/README.md	2026-10-15 03:48:06.361254223 +0000
+@@ -431,3 +431,17 @@
+ - 回归样例覆盖“体温/心率”与“她只需要……”两种本次实测问题。
+ 
+ 版本：`7.0.29-mobile-stable`
++
++### v7.0.30｜相邻删字近似复读兜底（2026-10-06）
++- 继承 v7.0.29 的 `A。 / A+B` 精确前缀复读清理。
++- 新增旁白相邻段“原句 / AI 仅删少量字后的改写句”兜底：只比较上一段最后一句与下一段第一句。
++- 仅当两句归一化后长度均 >=24、同头 4 字、同尾 10 字、长度差 1~16 字、保留率 >=82%，且较短句是较长句的严格子序列时才判定为复读。
++- 命中后保留后出现的改写句，只删除前一段末尾的重复原句；前一段其他内容不动。
++- 不使用语义相似度、同义词判断、向量匹配或泛化编辑距离；中文对白块继续完全跳过。
++
++## v7.0.31｜AI 请求硬超时与卡死修复
++
++- 修复手机 WebView 下 `fetch` 偶发不响应 `AbortController.abort()`，导致顶部“AI 改写中”永久不消失。
++- 整轮 AI 改写共享一个总截止时间；分组、重试与 smart-split 不再各自重新获得完整超时时间。
++- 网络超时不再触发 smart-split，直接结束 AI 请求并进入现有 program fallback；JSON/格式类错误仍保留 smart-split。
++- 保留用户配置的超时数值，不强行改短；只是保证到截止时间后任务层一定退出。
+diff -ruN '--exclude=v7.0.30-to-v7.0.31.patch' '--exclude=v7.0.29-to-v7.0.31.patch' /mnt/data/veridis_7029_cmp/manifest.json /mnt/data/veridis_7031/manifest.json
+--- /mnt/data/veridis_7029_cmp/manifest.json	2026-10-06 04:28:25.000000000 +0000
++++ /mnt/data/veridis_7031/manifest.json	2026-10-15 03:48:19.539370275 +0000
+@@ -4,6 +4,6 @@
+   "js": "index.js",
+   "css": "style.css",
+   "author": "Assistant",
+-  "version": "7.0.29-mobile-stable",
+-  "description": "Veridis Rewrite 手机稳定增强版：继承 v7.0.28；v7.0.29 在 AI 回填后的最终文本守卫中新增旁白相邻段 A。/A+B 精确前缀复读兜底，不改对白，不做模糊去重。"
++  "version": "7.0.31-mobile-stable",
++  "description": "Veridis Rewrite 手机稳定增强版：继承 v7.0.30；v7.0.31 修复 AI 请求卡死：整轮改写共享总截止时间，手机 WebView fetch 不响应 AbortController 时由硬超时 Promise 强制退出；网络超时不再递归 smart-split，避免顶部“AI 改写中”长期悬挂。"
+ }
+diff -ruN '--exclude=v7.0.30-to-v7.0.31.patch' '--exclude=v7.0.29-to-v7.0.31.patch' /mnt/data/veridis_7029_cmp/src/aiRewrite.js /mnt/data/veridis_7031/src/aiRewrite.js
+--- /mnt/data/veridis_7029_cmp/src/aiRewrite.js	2026-09-12 01:19:22.000000000 +0000
++++ /mnt/data/veridis_7031/src/aiRewrite.js	2026-10-15 03:47:49.174518198 +0000
+@@ -2740,6 +2740,10 @@
+ 
+ async function requestAcceptedRewritesOnce(task, rewriteState, attempt, maxAttempts, accepted, completedGroupKeys) {
+     const timeoutMs = normalizeLimit(task.aiSettings.timeoutMs, defaultAiRewriteSettings.timeoutMs, 1000, 300000);
++    const taskDeadlineAt = Number(task.requestDeadlineAt) > 0
++        ? Number(task.requestDeadlineAt)
++        : (Date.now() + timeoutMs);
++    task.requestDeadlineAt = taskDeadlineAt;
+     const groups = groupRewriteItemsByPrompt(task.items, task.aiSettings);
+ 
+     const runGroupItems = async (group, items, groupLabel, depth = 0) => {
+@@ -2765,7 +2769,16 @@
+         }
+ 
+         const controller = new AbortController();
+-        const timeoutId = setTimeout(() => controller.abort('timeout'), timeoutMs);
++        const remainingTimeoutMs = Math.max(1, taskDeadlineAt - Date.now());
++        let timeoutId = null;
++        const hardTimeout = new Promise((_, reject) => {
++            timeoutId = setTimeout(() => {
++                try { controller.abort('timeout'); } catch {}
++                const timeoutError = new Error('请求超时');
++                timeoutError.code = 'BLAI_AI_HARD_TIMEOUT';
++                reject(timeoutError);
++            }, remainingTimeoutMs);
++        });
+         rewriteState.activeController = controller;
+         rewriteState.activeTaskKey = task.dedupeKey;
+         rewriteState.activeTaskMeta = {
+@@ -2786,7 +2799,8 @@
+                 group: groupLabel,
+                 groupItemCount: items.length,
+                 groupItemIds: items.map(item => item.id),
+-                timeoutMs,
++                timeoutMs: remainingTimeoutMs,
++                taskDeadlineAt,
+                 splitDepth: depth,
+             });
+             const maxTokens = getDeepSeekBatchMaxTokens(items, task.aiSettings);
+@@ -2796,7 +2810,10 @@
+                 groupItemCount: items.length,
+                 maxTokens,
+             });
+-            const rawResponse = await requestAiRewrite(prompt, task.aiSettings, controller.signal, task, { maxTokens });
++            const rawResponse = await Promise.race([
++                requestAiRewrite(prompt, task.aiSettings, controller.signal, task, { maxTokens }),
++                hardTimeout,
++            ]);
+             const freshnessIssue = getTaskFreshnessIssue(task);
+             if (freshnessIssue) {
+                 recordAiRewriteDebug('request-stale-after-fetch', {
+@@ -2839,10 +2856,14 @@
+                 splitDepth: depth,
+             }, 'warn');
+ 
+-            const canSplit = task.aiSettings.smartSplitOnFailure !== false
++            // 网络超时说明当前 API/网络链路没有及时响应。继续二分只会把同一个
++            // 120s 超时成倍叠加，导致顶部“AI 改写中”看起来永久卡住。
++            // 仅对 JSON/格式类可拆分错误继续 smart-split。
++            const canSplit = abortReason !== 'timeout'
++                && task.aiSettings.smartSplitOnFailure !== false
+                 && items.length > 1
+                 && depth < 5
+-                && (abortReason === 'timeout' || shouldSmartSplitAiError(err));
++                && shouldSmartSplitAiError(err);
+ 
+             if (canSplit) {
+                 const midpoint = Math.ceil(items.length / 2);
+@@ -2880,7 +2901,7 @@
+             wrapped.maxAttempts = maxAttempts;
+             throw wrapped;
+         } finally {
+-            clearTimeout(timeoutId);
++            if (timeoutId) clearTimeout(timeoutId);
+             if (rewriteState.activeTaskKey === task.dedupeKey && rewriteState.activeController === controller) {
+                 rewriteState.activeController = null;
+                 rewriteState.activeTaskKey = '';
+@@ -3009,6 +3030,8 @@
+         scheduleSource: readyTask.scheduleSource || '',
+         messageTextHashAtBuild: readyTask.messageTextHashAtBuild || '',
+         contentSnapshotHash: readyTask.contentSnapshotHash || hashString(readyTask.snapshotText || ''),
++        // 整轮 AI 改写共享同一个截止时间；分组、重试、smart-split 不再各自重置超时。
++        requestDeadlineAt: Date.now() + normalizeLimit(aiSettings.timeoutMs, defaultAiRewriteSettings.timeoutMs, 1000, 300000),
+     };
+     markStreamingAiRewriteStarted(task);
+     getRunningTaskMetaMap().set(dedupeKey, {
+diff -ruN '--exclude=v7.0.30-to-v7.0.31.patch' '--exclude=v7.0.29-to-v7.0.31.patch' /mnt/data/veridis_7029_cmp/src/stableTextGuards.js /mnt/data/veridis_7031/src/stableTextGuards.js
+--- /mnt/data/veridis_7029_cmp/src/stableTextGuards.js	2026-10-06 04:28:25.000000000 +0000
++++ /mnt/data/veridis_7031/src/stableTextGuards.js	2026-10-06 05:09:05.000000000 +0000
+@@ -72,6 +72,102 @@
+     });
+ }
+ 
++
++function normalizeNarrativeRepeatCandidate(value) {
++    return String(value || '')
++        .replace(/[\s，,。！？!?；;：:、…—“”「」『』‘’'"（）()【】\[\]]+/gu, '');
++}
++
++function isSubsequenceText(shorter, longer) {
++    if (!shorter || !longer || shorter.length > longer.length) return false;
++    let i = 0;
++    for (let j = 0; j < longer.length && i < shorter.length; j += 1) {
++        if (shorter[i] === longer[j]) i += 1;
++    }
++    return i === shorter.length;
++}
++
++function looksLikeAdjacentDeletionVariant(leftSentence, rightSentence) {
++    const left = normalizeNarrativeRepeatCandidate(leftSentence);
++    const right = normalizeNarrativeRepeatCandidate(rightSentence);
++    if (left.length < 24 || right.length < 24) return false;
++
++    const shorter = left.length <= right.length ? left : right;
++    const longer = left.length <= right.length ? right : left;
++    const diff = longer.length - shorter.length;
++    const ratio = shorter.length / longer.length;
++
++    // v7.0.30 deliberately does NOT use semantic/fuzzy similarity. It only accepts
++    // a near-copy that can be explained by a small contiguous/dispersed deletion.
++    if (diff < 1 || diff > 16 || ratio < 0.82) return false;
++    if (left.slice(0, 4) !== right.slice(0, 4)) return false;
++    if (left.slice(-10) !== right.slice(-10)) return false;
++    return isSubsequenceText(shorter, longer);
++}
++
++/**
++ * v7.0.30: collapse a narration sentence replay where AI cleanup removes only a
++ * small phrase and accidentally leaves both the original sentence and its edited
++ * copy across adjacent paragraphs.
++ *
++ * Example:
++ *   ...他的心，他的灵魂，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。
++ *
++ *   他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。B...
++ *
++ * Safety boundaries:
++ * - narration only; dialogue is preserved byte-for-byte by transformOutsideDialogue
++ * - only the last sentence before a blank-line paragraph break vs the first sentence after it
++ * - both candidates >= 24 normalized chars
++ * - same first 4 + last 10 normalized chars
++ * - only 1~16 normalized chars may differ, with >= 82% length retention
++ * - shorter form must be an exact subsequence of the longer form
++ * - no embeddings, edit-distance fuzz, synonym matching, or semantic similarity
++ *
++ * The later sentence is kept because it is the post-rewrite copy; only the earlier
++ * duplicate sentence is removed. Other text in the previous paragraph is preserved.
++ */
++export function cleanupNarrativeAdjacentDeletionVariant(sourceText) {
++    return transformOutsideDialogue(sourceText, (span) => {
++        let output = String(span || '');
++        if (!output) return output;
++
++        const paragraphBreak = /\r?\n[ \t]*\r?\n+/gu;
++        for (let pass = 0; pass < 3; pass += 1) {
++            let changed = false;
++            let rebuilt = '';
++            let cursor = 0;
++
++            for (const match of output.matchAll(paragraphBreak)) {
++                const breakStart = Number(match.index) || 0;
++                const breakEnd = breakStart + match[0].length;
++                const before = output.slice(cursor, breakStart);
++                const afterAll = output.slice(breakEnd);
++
++                const leftTail = before.match(/([^。！？!?；;\r\n]{1,180}[。！？!?])\s*$/u);
++                const rightHead = afterAll.match(/^\s*([^。！？!?；;\r\n]{1,180}[。！？!?])/u);
++
++                if (leftTail && rightHead && looksLikeAdjacentDeletionVariant(leftTail[1], rightHead[1])) {
++                    const cutAt = before.length - leftTail[0].length;
++                    rebuilt += before.slice(0, cutAt).replace(/[ \t]+$/u, '');
++                    rebuilt += match[0];
++                    cursor = breakEnd;
++                    changed = true;
++                    continue;
++                }
++
++                rebuilt += output.slice(cursor, breakEnd);
++                cursor = breakEnd;
++            }
++
++            rebuilt += output.slice(cursor);
++            if (!changed || rebuilt === output) break;
++            output = rebuilt;
++        }
++        return output;
++    });
++}
++
+ const externalBodySoftMeatPattern = /(大腿(?:内侧|外侧)?|腿侧|腿根|腰侧|臀部|胸部|小腹|下腹|肩头|手臂)(?:上|处|的)?(?:那片|这片|一片|那块|这块)?(?:柔软的肉|软肉|嫩肉)/gu;
+ const bodyTouchAnchorPattern = /(?:娇嫩|薄嫩|细嫩|柔嫩|冷白|白皙|光滑|细腻|手掌|掌心|指腹|指尖|按|压|碾|揉|捏|抓|抚|推挤|变形|凹陷|压痕|泛红|充血|大腿|腿侧|臀|腰|胸|肩|腹|胯|阴唇|阴蒂|阴部)/u;
+ const injuryAnchorPattern = /(?:皮肉伤|皮肉之苦|刀|剑|刃|割|划|砍|撕裂|裂开|伤口|创口|烧伤|烫伤|流血|鲜血|血肉|剥开)/u;
+@@ -111,6 +207,7 @@
+ export function applyStableFinalTextGuards(sourceText) {
+     let output = cleanupNarrativeNearDuplication(sourceText);
+     output = cleanupNarrativePrefixDuplication(output);
++    output = cleanupNarrativeAdjacentDeletionVariant(output);
+     output = cleanupHumanMeatObjectificationResidue(output);
+     return output;
+ }
+diff -ruN '--exclude=v7.0.30-to-v7.0.31.patch' '--exclude=v7.0.29-to-v7.0.31.patch' /mnt/data/veridis_7029_cmp/tests/regression-v7.0.28.mjs /mnt/data/veridis_7031/tests/regression-v7.0.28.mjs
+--- /mnt/data/veridis_7029_cmp/tests/regression-v7.0.28.mjs	2026-10-06 04:28:25.000000000 +0000
++++ /mnt/data/veridis_7031/tests/regression-v7.0.28.mjs	2026-10-06 05:08:43.000000000 +0000
+@@ -13,6 +13,11 @@
+     ['prefix replay extended comma', '她只需要在他的掌心里呼吸、作画、生存。\n\n她只需要在他的掌心里呼吸、作画、生存，由他来提供一切。', '她只需要在他的掌心里呼吸、作画、生存，由他来提供一切。'],
+     ['dialogue prefix repetition preserved', '“你必须记住我的名字，永远不能忘。\n\n你必须记住我的名字，永远不能忘，听见了吗？”', '“你必须记住我的名字，永远不能忘。\n\n你必须记住我的名字，永远不能忘，听见了吗？”'],
+     ['short narration repetition preserved', '一切如常。\n\n一切如常。窗外下着雨。', '一切如常。\n\n一切如常。窗外下着雨。'],
++    ['adjacent deletion variant reported', '这不过是一具高级的泄欲模具。他的心，他的灵魂，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。\n\n他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。精神与肉体彻底割裂。', '这不过是一具高级的泄欲模具。\n\n他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。精神与肉体彻底割裂。'],
++    ['adjacent deletion variant keeps other prior narration', '前一句仍然保留。第二句也要保留。他的心，他的灵魂，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。\n\n他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。后续继续。', '前一句仍然保留。第二句也要保留。\n\n他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。后续继续。'],
++    ['near but not deletion variant preserved', '他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。\n\n他的心，他所有的爱与执念，却在两年后的冬夜里彻底死在了虞昭的名字上。', '他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。\n\n他的心，他所有的爱与执念，却在两年后的冬夜里彻底死在了虞昭的名字上。'],
++    ['short rhetorical narration preserved', '他必须活下去。\n\n他必须活下去，因为她还在等。', '他必须活下去。\n\n他必须活下去，因为她还在等。'],
++    ['dialogue deletion variant preserved', '“他的心，他的灵魂，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。\n\n他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。”', '“他的心，他的灵魂，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。\n\n他的心，他所有的爱与执念，早就在两年前那个春日里，完完整整地刻在了虞昭的名字上。”'],
+ ];
+ for (const [name, input, expected] of cases) {
+     const actual = applyStableFinalTextGuards(input);
+diff -ruN '--exclude=v7.0.30-to-v7.0.31.patch' '--exclude=v7.0.29-to-v7.0.31.patch' /mnt/data/veridis_7029_cmp/tests/regression-v7.0.31-timeout.mjs /mnt/data/veridis_7031/tests/regression-v7.0.31-timeout.mjs
+--- /mnt/data/veridis_7029_cmp/tests/regression-v7.0.31-timeout.mjs	1970-01-01 00:00:00.000000000 +0000
++++ /mnt/data/veridis_7031/tests/regression-v7.0.31-timeout.mjs	2026-10-15 03:48:19.690809822 +0000
+@@ -0,0 +1,9 @@
++import fs from 'node:fs';
++import assert from 'node:assert/strict';
++
++const src = fs.readFileSync(new URL('../src/aiRewrite.js', import.meta.url), 'utf8');
++assert.match(src, /Promise\.race\(\[\s*requestAiRewrite[\s\S]*?hardTimeout/s, 'AI fetch must have a hard Promise.race timeout');
++assert.match(src, /requestDeadlineAt:\s*Date\.now\(\)\s*\+/s, 'task must have a shared total deadline');
++assert.match(src, /const canSplit = abortReason !== 'timeout'/, 'network timeout must not trigger smart split');
++assert.match(src, /taskDeadlineAt - Date\.now\(\)/, 'subrequests must use remaining task time');
++console.log('v7.0.31 timeout regression checks passed');
